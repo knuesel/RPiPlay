@@ -17,6 +17,9 @@ target_link_libraries( airplay
         llhttp
         ${LIBPLIST} )
 
+file(GLOB INCLUDE_FILES "*.h")
+set_target_properties(airplay PROPERTIES PUBLIC_HEADER "${INCLUDE_FILES}")
+
 if( UNIX AND NOT APPLE )
   find_package(OpenSSL 1.1.1 REQUIRED)
   target_compile_definitions(airplay PUBLIC OPENSSL_API_COMPAT=0x10101000L)
@@ -26,4 +29,7 @@ else()
   include_directories( /usr/local/opt/openssl@1.1/include/ )
   target_link_libraries( airplay /usr/local/opt/openssl@1.1/lib/libcrypto.a )
 endif()
-        
+
+install(TARGETS airplay
+  ARCHIVE DESTINATION lib
+  PUBLIC_HEADER DESTINATION include/airplay)
