@@ -30,6 +30,21 @@ else()
   target_link_libraries( airplay /usr/local/opt/openssl@1.1/lib/libcrypto.a )
 endif()
 
+# For pkg-config file generation
+set(DEST_DIR "${CMAKE_INSTALL_PREFIX}")
+get_target_property(airplay_libs airplay LINK_LIBRARIES)
+foreach(LIB ${airplay_libs} m) # Add math library, needed by playfair
+  if( "${LIB}" STREQUAL OpenSSL::Crypto )
+    set(PRIVATE_LIBS "${PRIVATE_LIBS} ${OPENSSL_CRYPTO_LIBRARY}")
+  elseif( IS_ABSOLUTE "${LIB}" )
+    set(PRIVATE_LIBS "${PRIVATE_LIBS} ${LIB}")
+  else()
+    set(PRIVATE_LIBS "${PRIVATE_LIBS} -l${LIB}")
+  endif()
+endforeach()
+configure_file(airplay.pc.in airplay.pc @ONLY)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/airplay.pc" DESTINATION lib/pkgconfig)
+
 install(TARGETS airplay
   ARCHIVE DESTINATION lib
   PUBLIC_HEADER DESTINATION include/airplay)
